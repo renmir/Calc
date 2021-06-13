@@ -11,46 +11,47 @@ public class Calc extends JFrame {
         window.setVisible(true);
     }
 
-    private final JPanel content  = new JPanel();
+    private final JPanel content;
     private final JTextField display;
-    private JButton c, del, div, multi, minus, plus, value, point, equal;
-    private JButton zero, one, two, three, four, five, six, seven, eight, nine;
+    private JButton c, del, div, multi, minus, plus, value, point, equal,
+            zero, one, two, three, four, five, six, seven, eight, nine;
     String firstNum, secNum, tempNum, operator;
     Color color;
     boolean second;
 
     public Calc() {
         super("Calculator");
+        content = new JPanel();
         content.setLayout(null);
         content.setBackground(Color.LIGHT_GRAY);
         content.setPreferredSize(new Dimension(350,400));
         display = createDisplay();
         content.add(display);
 
-        setCDel();
-        content.add(c);
-        content.add(del);
+        setAllB(content, c, "C", 10, 100, 80, 50);
+        setAllB(content, del, "Del", 94, 100, 80, 50);
+        setAllB(content, equal, "=", 177, 340, 163, 50);
 
-        setAllOp();
-        content.add(value);
-        content.add(div);
-        content.add(multi);
-        content.add(minus);
-        content.add(plus);
-        content.add(point);
-        content.add(equal);
+        setAllOp(content, value, "+/-", 177, 100, 80, 50);
+        setAllOp(content, div, "/", 260, 100, 80, 50);
+        setAllOp(content, multi, "x", 260, 160, 80, 50);
+        setAllOp(content, minus, "-", 260, 220, 80, 50);
+        setAllOp(content, plus, "+", 260, 280, 80, 50);
+        setAllOp(content, point, ".", 10, 340, 80, 50);
 
-        setAllNum();
-        content.add(seven);
-        content.add(eight);
-        content.add(nine);
-        content.add(four);
-        content.add(five);
-        content.add(six);
-        content.add(one);
-        content.add(two);
-        content.add(three);
-        content.add(zero);
+        setAllNum(content, seven, "7", 10,160,80,50);
+        setAllNum(content, eight, "8", 94,160,80,50);
+        setAllNum(content, nine, "9", 177,160,80,50);
+
+        setAllNum(content, four, "4", 10,220,80,50);
+        setAllNum(content, five, "5", 94,220,80,50);
+        setAllNum(content, six, "6", 177,220,80,50);
+
+        setAllNum(content, one, "1", 10,280,80,50);
+        setAllNum(content, two, "2", 94,280,80,50);
+        setAllNum(content, three, "3", 177,280,80,50);
+
+        setAllNum(content, zero, "0", 94,340,80,50);
 
         setContentPane(content);
         pack();
@@ -69,7 +70,37 @@ public class Calc extends JFrame {
         return display;
     }
 
-    public void setCDel(){
+    void checkEndPoint(){
+        if (firstNum.endsWith(".0")) {
+            firstNum = firstNum.replace(".0", "");
+        } else if(secNum.endsWith(".0")) {
+            secNum = secNum.replace(".0", "");
+        }
+    }
+
+    void result() {
+        operator = "";
+        secNum = "";
+        second = false;
+        checkEndPoint();
+        tempNum = firstNum;
+        display.setText(tempNum);
+    }
+
+    void setOp(String op){
+        operator = op;
+        second = true;
+        secNum = "";
+    }
+
+    void printOp(){
+        checkEndPoint();
+        tempNum = firstNum + operator;
+        display.setText(tempNum);
+    }
+
+
+    public void setAllB(JPanel p,JButton b, String s, int x, int y, int w, int h) {
         class button implements ActionListener {
             public void actionPerformed(ActionEvent evt) {
                 switch (evt.getActionCommand()) {
@@ -104,19 +135,43 @@ public class Calc extends JFrame {
                             }
                         }
                         break;
+                    case "=":
+                        if (!second) return;
+                        else {
+                            display.setBackground(color);
+                            switch (operator) {
+                                case "/" -> {
+                                    firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
+                                    result();
+                                }
+                                case "x" -> {
+                                    firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
+                                    result();
+                                }
+                                case "+" -> {
+                                    firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
+                                    result();
+                                }
+                                case "-" -> {
+                                    firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
+                                    result();
+                                }
+                            }
+
+                        }
+                        break;
                 }
             }
         }
 
-        c = new JButton("C");
-        c.setBounds(10,100,80,50);
-        c.addActionListener(new button());
-        del = new JButton("Del");
-        del.setBounds(94,100,80,50);
-        del.addActionListener(new button());
+        b = new JButton(s);
+        b.setBounds(x,y,w,h);
+        b.addActionListener(new button());
+
+        p.add(b);
     }
 
-    public void setAllOp() {
+    public void setAllOp(JPanel p,JButton b, String s, int x, int y, int w, int h) {
         class button implements ActionListener {
             public void actionPerformed(ActionEvent evt) {
                 if (display.getText().length() < 9) {
@@ -126,19 +181,16 @@ public class Calc extends JFrame {
                                 if (tempNum.equals("0")) return;
                                 else {
                                     firstNum = Double.toString(Double.parseDouble(firstNum)  * (-1));
+                                    checkEndPoint();
                                     tempNum = firstNum;
                                     display.setText(tempNum);
-                                    if (tempNum.endsWith(".0")) {
-                                        firstNum = firstNum.replace(".0", "");
-                                        display.setText(tempNum = firstNum);
-                                    }
                                 }
                             } else {
                                 if (secNum.equals("")) return;
                                 else {
                                     String temp = secNum;
                                     secNum = Double.toString(Double.parseDouble(secNum)  * (-1));
-                                    if (secNum.endsWith(".0")) secNum = secNum.replace(".0", "");
+                                    checkEndPoint();
                                     display.setText(tempNum.replace(temp, secNum));
                                 }
                             }
@@ -146,189 +198,110 @@ public class Calc extends JFrame {
                         case "/":
                             if (!second) {
                                 if (tempNum.equals("0")) return;
-                                operator = "/";
-                                tempNum = firstNum + operator;
-                                display.setText(tempNum);
-                                second = true;
-                                secNum = "";
+                                setOp("/");
                             } else {
                                 if (tempNum.endsWith(operator)) display.setBackground(Color.PINK);
                                 else {
                                     display.setBackground(color);
                                     if (operator.equals("/")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("/");
                                     }
                                     if (operator.equals("x")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
-                                        operator = "/";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("/");
                                     }
                                     if (operator.equals("+")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
-                                        operator = "/";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("/");
                                     }
                                     if (operator.equals("-")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                        operator = "/";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("/");
                                     }
                                 }
-                                if (firstNum.endsWith(".0")) {
-                                    firstNum = firstNum.replace(".0", "");
-                                    display.setText(tempNum = firstNum + operator);
-                                }
-                            }
+                            }  printOp();
                             break;
                         case "x":
                             if (!second) {
                                 if (tempNum.equals("0")) return;
-                                operator = "x";
-                                tempNum = firstNum + operator;
-                                display.setText(tempNum);
-                                second = true;
-                                secNum = "";
+                                setOp("x");
                             }  else {
                                 if (tempNum.endsWith(operator)) display.setBackground(Color.PINK);
                                 else {
                                     display.setBackground(color);
                                     if (operator.equals("x")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("x");
                                     }
                                     if (operator.equals("+")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
-                                        operator = "x";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("x");
                                     }
                                     if (operator.equals("/")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
-                                        operator = "x";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("x");
                                     }
                                     if (operator.equals("-")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                        operator = "x";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("x");
                                     }
                                 }
-                                if (firstNum.endsWith(".0")) {
-                                    firstNum = firstNum.replace(".0", "");
-                                    display.setText(tempNum = firstNum + operator);
-                                }
-                            }
+                            }  printOp();
                             break;
                         case "+":
                             if (!second) {
                                 if (tempNum.equals("0")) return;
-                                operator = "+";
-                                tempNum = firstNum + operator;
-                                display.setText(tempNum);
-                                second = true;
-                                secNum = "";
+                                setOp("+");
                             } else {
                                 if (tempNum.endsWith(operator)) display.setBackground(Color.PINK);
                                 else {
                                     display.setBackground(color);
                                     if (operator.equals("+")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("+");
                                     }
                                     if (operator.equals("x")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
-                                        operator = "+";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("+");
                                     }
                                     if (operator.equals("/")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
-                                        operator = "+";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("+");
+                                    }
+                                    if (operator.equals("-")) {
+                                        firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
+                                        setOp("+");
                                     }
                                 }
-                                if (operator.equals("-")) {
-                                    firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                    operator = "+";
-                                    tempNum = firstNum + operator;
-                                    secNum = "";
-                                    display.setText(tempNum);
-                                }
-                            }
+                            }  printOp();
                             break;
                         case "-":
                             if (!second) {
                                 if (tempNum.equals("0")) return;
-                                operator = "-";
-                                tempNum = firstNum + operator;
-                                display.setText(tempNum);
-                                second = true;
-                                secNum = "";
+                                setOp("-");
                             } else {
                                 if (tempNum.endsWith(operator)) display.setBackground(Color.PINK);
                                 else {
                                     display.setBackground(color);
                                     if (operator.equals("-")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("-");
                                     }
                                     if (operator.equals("x")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
-                                        operator = "-";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("-");
                                     }
                                     if (operator.equals("/")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
-                                        operator = "-";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("-");
                                     }
                                     if (operator.equals("+")) {
                                         firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
-                                        operator = "-";
-                                        tempNum = firstNum + operator;
-                                        secNum = "";
-                                        display.setText(tempNum);
+                                        setOp("-");
                                     }
                                 }
-                                if (operator.equals("-")) {
-                                    firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                    operator = "+";
-                                    tempNum = firstNum + operator;
-                                    secNum = "";
-                                    display.setText(tempNum);
-                                }
-                                if (firstNum.endsWith(".0")) {
-                                    firstNum = firstNum.replace(".0", "");
-                                    display.setText(tempNum = firstNum + operator);
-                                }
-                            }
+                            }  printOp();
                             break;
                         case ".":
                             if (!second) {
@@ -356,78 +329,20 @@ public class Calc extends JFrame {
                                 }
                             }
                             break;
-                        case "=":
-                            if (!second) return;
-                            else {
-                                display.setBackground(color);
-                                switch (operator) {
-                                    case "/" -> {
-                                        firstNum = Double.toString(Double.parseDouble(firstNum) / Double.parseDouble(secNum));
-                                        tempNum = firstNum;
-                                        secNum = "";
-                                        second = false;
-                                        display.setText(tempNum);
-                                    }
-                                    case "x" -> {
-                                        firstNum = Double.toString(Double.parseDouble(firstNum) * Double.parseDouble(secNum));
-                                        tempNum = firstNum;
-                                        secNum = "";
-                                        second = false;
-                                        display.setText(tempNum);
-                                    }
-                                    case "+" -> {
-                                        firstNum = Double.toString(Double.parseDouble(firstNum) + Double.parseDouble(secNum));
-                                        tempNum = firstNum;
-                                        secNum = "";
-                                        second = false;
-                                        display.setText(tempNum);
-                                    }
-                                    case "-" -> {
-                                        firstNum = Double.toString(Double.parseDouble(firstNum) - Double.parseDouble(secNum));
-                                        tempNum = firstNum;
-                                        secNum = "";
-                                        second = false;
-                                        display.setText(tempNum);
-                                    }
-                                }
-                                if (tempNum.endsWith(".0")) {
-                                    firstNum = firstNum.replace(".0", "");
-                                    display.setText(tempNum = firstNum);
-                                }
-                            }
-                            break;
                     }
                 }
                 else display.setBackground(Color.PINK);
             }
         }
 
-        value = new JButton("+/-");
-        value.setBounds(177,100,80,50);
-        value.addActionListener(new button());
+        b = new JButton(s);
+        b.setBounds(x,y,w,h);
+        b.addActionListener(new button());
 
-        div = new JButton("/");
-        div.setBounds(260,100,80,50);
-        div.addActionListener(new button());
-        multi = new JButton("x");
-        multi.setBounds(260,160,80,50);
-        multi.addActionListener(new button());
-        minus = new JButton("-");
-        minus.setBounds(260,220,80,50);
-        minus.addActionListener(new button());
-        plus = new JButton("+");
-        plus.setBounds(260,280,80,50);
-        plus.addActionListener(new button());
-
-        point = new JButton(".");
-        point.setBounds(10,340,80,50);
-        point.addActionListener(new button());
-        equal = new JButton("=");
-        equal.setBounds(177,340,163,50);
-        equal.addActionListener(new button());
+        p.add(b);
     }
 
-    public void setAllNum() {
+    public void setAllNum(JPanel p,JButton b, String s, int x, int y, int w, int h) {
         class button implements ActionListener {
             public void actionPerformed(ActionEvent evt) {
                 if (display.getText().length() < 9) {  // max length for input
@@ -546,38 +461,10 @@ public class Calc extends JFrame {
             }
         }
 
-        seven = new JButton("7");
-        seven.setBounds(10,160,80,50);
-        seven.addActionListener(new button());
-        eight = new JButton("8");
-        eight.setBounds(94,160,80,50);
-        eight.addActionListener(new button());
-        nine = new JButton("9");
-        nine.setBounds(177,160,80,50);
-        nine.addActionListener(new button());
+        b = new JButton(s);
+        b.setBounds(x,y,w,h);
+        b.addActionListener(new button());
 
-        four = new JButton("4");
-        four.setBounds(10,220,80,50);
-        four.addActionListener(new button());
-        five = new JButton("5");
-        five.setBounds(94,220,80,50);
-        five.addActionListener(new button());
-        six = new JButton("6");
-        six.setBounds(177,220,80,50);
-        six.addActionListener(new button());
-
-        one = new JButton("1");
-        one.setBounds(10,280,80,50);
-        one.addActionListener(new button());
-        two = new JButton("2");
-        two.setBounds(94,280,80,50);
-        two.addActionListener(new button());
-        three = new JButton("3");
-        three.setBounds(177,280,80,50);
-        three.addActionListener(new button());
-
-        zero = new JButton("0");
-        zero.setBounds(94,340,80,50);
-        zero.addActionListener(new button());
+        p.add(b);
     }
 }
